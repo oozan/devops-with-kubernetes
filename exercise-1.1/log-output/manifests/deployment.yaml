@@ -16,3 +16,5 @@ spec:
         - name: log-output
           image: log-output
           imagePullPolicy: Never
+          ports:
+            - containerPort: 3000
