@@ -12,9 +12,16 @@ spec:
       labels:
         app: project
     spec:
+      volumes:
+        - name: shared-data
+          persistentVolumeClaim:
+            claimName: shared-data-pvc
       containers:
         - name: project
           image: project
           imagePullPolicy: Never
           ports:
             - containerPort: 3000
+          volumeMounts:
+            - name: shared-data
+              mountPath: /usr/src/app/files
