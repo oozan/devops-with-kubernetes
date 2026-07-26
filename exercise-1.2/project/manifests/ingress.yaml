@@ -6,8 +6,15 @@ spec:
   rules:
     - http:
         paths:
-          - path: /
+          - path: /project
             pathType: Prefix
+            backend:
+              service:
+                name: project
+                port:
+                  number: 3000
+          - path: /image.jpg
+            pathType: Exact
             backend:
               service:
                 name: project

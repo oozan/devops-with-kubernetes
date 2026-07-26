@@ -10,6 +10,8 @@ const TEN_MINUTES = 10 * 60 * 1000;
 
 fs.mkdirSync(filesDir, { recursive: true });
 
+const todos = ["Learn Kubernetes", "Build a todo app"];
+
 const isImageFresh = () => {
   if (!fs.existsSync(imagePath) || !fs.existsSync(metadataPath)) {
     return false;
@@ -31,6 +33,40 @@ const cacheImage = async () => {
   fs.writeFileSync(metadataPath, JSON.stringify({ createdAt: Date.now() }));
 };
 
+const readBody = (req) =>
+  new Promise((resolve) => {
+    let body = "";
+
+    req.on("data", (chunk) => {
+      body += chunk.toString();
+    });
+
+    req.on("end", () => resolve(body));
+  });
+
+const renderPage = async () => {
+  await cacheImage();
+
+  return `
+    <!doctype html>
+    <html>
+      <body style="font-family: Arial; text-align: center;">
+        <h1>Todo App</h1>
+        <img src="/image.jpg" alt="Random image" style="max-width: 500px;" />
+
+        <form method="POST" action="/todos" style="margin-top: 20px;">
+          <input name="todo" maxlength="140" />
+          <button type="submit">Create TODO</button>
+        </form>
+
+        <ul style="display: inline-block; text-align: left;">
+          ${todos.map((todo) => `<li>${todo}</li>`).join("")}
+        </ul>
+      </body>
+    </html>
+  `;
+};
+
 const server = http.createServer(async (req, res) => {
   if (req.url === "/image.jpg") {
     await cacheImage();
@@ -40,19 +76,22 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  await cacheImage();
+  if (req.method === "POST" && req.url === "/todos") {
+    const body = await readBody(req);
+    const params = new URLSearchParams(body);
+    const todo = params.get("todo");
+
+    if (todo && todo.length <= 140) {
+      todos.push(todo);
+    }
+
+    res.writeHead(303, { Location: "/" });
+    res.end();
+    return;
+  }
 
   res.writeHead(200, { "Content-Type": "text/html" });
-  res.end(`
-    <!doctype html>
-    <html>
-      <body style="font-family: Arial; text-align: center;">
-        <h1>Todo App</h1>
-        <img src="/image.jpg" alt="Random image" style="max-width: 500px;" />
-        <p>DevOps with Kubernetes 2026</p>
-      </body>
-    </html>
-  `);
+  res.end(await renderPage());
 });
 
 server.listen(PORT, () => {
