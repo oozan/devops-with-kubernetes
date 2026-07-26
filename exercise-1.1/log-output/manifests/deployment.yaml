@@ -12,9 +12,23 @@ spec:
       labels:
         app: log-output
     spec:
+      volumes:
+        - name: shared-files
+          emptyDir: {}
       containers:
-        - name: log-output
+        - name: log-output-writer
           image: log-output
           imagePullPolicy: Never
+          command: ["node", "writer.js"]
+          volumeMounts:
+            - name: shared-files
+              mountPath: /usr/src/app/files
+        - name: log-output-server
+          image: log-output
+          imagePullPolicy: Never
+          command: ["node", "server.js"]
           ports:
             - containerPort: 3000
+          volumeMounts:
+            - name: shared-files
+              mountPath: /usr/src/app/files
