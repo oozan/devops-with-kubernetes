@@ -13,16 +13,15 @@ spec:
         app: log-output
     spec:
       volumes:
-        - name: shared-data
-          persistentVolumeClaim:
-            claimName: shared-data-pvc
+        - name: shared-files
+          emptyDir: {}
       containers:
         - name: log-output-writer
           image: log-output
           imagePullPolicy: Never
           command: ["node", "writer.js"]
           volumeMounts:
-            - name: shared-data
+            - name: shared-files
               mountPath: /usr/src/app/files
         - name: log-output-server
           image: log-output
@@ -31,5 +30,5 @@ spec:
           ports:
             - containerPort: 3000
           volumeMounts:
-            - name: shared-data
+            - name: shared-files
               mountPath: /usr/src/app/files

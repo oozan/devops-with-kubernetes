@@ -12,16 +12,9 @@ spec:
       labels:
         app: ping-pong
     spec:
-      volumes:
-        - name: shared-data
-          persistentVolumeClaim:
-            claimName: shared-data-pvc
       containers:
         - name: ping-pong
           image: ping-pong
           imagePullPolicy: Never
           ports:
             - containerPort: 3000
-          volumeMounts:
-            - name: shared-data
-              mountPath: /usr/src/app/files
