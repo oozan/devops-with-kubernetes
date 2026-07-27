@@ -51,7 +51,7 @@ const renderPage = async () => {
     <!doctype html>
     <html>
       <body style="font-family: Arial; text-align: center;">
-        <h1>Todo App</h1>
+        <h1>Todo App</h1>\n        <p>${process.env.MESSAGE || "No message configured"}</p>
         <img src="/image.jpg" alt="Random image" style="max-width: 500px;" />
 
         <form method="POST" action="/todos" style="margin-top: 20px;">
