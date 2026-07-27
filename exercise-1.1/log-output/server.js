@@ -2,7 +2,7 @@ const http = require("http");
 const fs = require("fs");
 
 const PORT = process.env.PORT || 3000;
-const PING_PONG_URL = process.env.PING_PONG_URL || "http://ping-pong:3000/pings";
+const PING_PONG_URL = process.env.PING_PONG_URL || "http://ping-pong.exercises:3000/pings";
 const logFilePath = "/usr/src/app/files/output.txt";
 
 const getPingCount = () =>
