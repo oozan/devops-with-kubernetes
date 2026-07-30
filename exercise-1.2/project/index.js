@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 const PORT = process.env.PORT || 3000;
+const TODO_BACKEND_URL = process.env.TODO_BACKEND_URL || "http://todo-backend.project:3000";
 const filesDir = "/usr/src/app/files";
 const imagePath = path.join(filesDir, "image.jpg");
 const metadataPath = path.join(filesDir, "image-metadata.json");
@@ -11,8 +12,6 @@ const IMAGE_CACHE_MINUTES = Number(process.env.IMAGE_CACHE_MINUTES || "10");
 const IMAGE_CACHE_TIME = IMAGE_CACHE_MINUTES * 60 * 1000;
 
 fs.mkdirSync(filesDir, { recursive: true });
-
-const todos = ["Learn Kubernetes", "Build a todo app"];
 
 const isImageFresh = () => {
   if (!fs.existsSync(imagePath) || !fs.existsSync(metadataPath)) {
@@ -46,14 +45,29 @@ const readBody = (req) =>
     req.on("end", () => resolve(body));
   });
 
+const getTodos = async () => {
+  const response = await fetch(`${TODO_BACKEND_URL}/todos`);
+  return response.json();
+};
+
+const createTodo = async (todo) => {
+  await fetch(`${TODO_BACKEND_URL}/todos`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ todo }),
+  });
+};
+
 const renderPage = async () => {
   await cacheImage();
+  const todos = await getTodos();
 
   return `
     <!doctype html>
     <html>
       <body style="font-family: Arial; text-align: center;">
-        <h1>Todo App</h1>\n        <p>${process.env.MESSAGE || "No message configured"}</p>
+        <h1>Todo App</h1>
+        <p>${process.env.MESSAGE || "No message configured"}</p>
         <img src="/image.jpg" alt="Random image" style="max-width: 500px;" />
 
         <form method="POST" action="/todos" style="margin-top: 20px;">
@@ -84,10 +98,10 @@ const server = http.createServer(async (req, res) => {
     const todo = params.get("todo");
 
     if (todo && todo.length <= 140) {
-      todos.push(todo);
+      await createTodo(todo);
     }
 
-    res.writeHead(303, { Location: "/" });
+    res.writeHead(303, { Location: "/project" });
     res.end();
     return;
   }
