@@ -26,8 +26,10 @@ const server = http.createServer(async (req, res) => {
     const body = await readBody(req);
     const data = JSON.parse(body || "{}");
 
-    if (data.todo) {
-      todos.push(data.todo);
+    const todo = data.todo || data.text;
+
+    if (todo) {
+      todos.push(todo);
     }
 
     res.writeHead(201, { "Content-Type": "application/json" });
