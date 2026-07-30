@@ -6,7 +6,9 @@ const PORT = process.env.PORT || 3000;
 const filesDir = "/usr/src/app/files";
 const imagePath = path.join(filesDir, "image.jpg");
 const metadataPath = path.join(filesDir, "image-metadata.json");
-const TEN_MINUTES = 10 * 60 * 1000;
+const IMAGE_URL = process.env.IMAGE_URL || "https://picsum.photos/1200";
+const IMAGE_CACHE_MINUTES = Number(process.env.IMAGE_CACHE_MINUTES || "10");
+const IMAGE_CACHE_TIME = IMAGE_CACHE_MINUTES * 60 * 1000;
 
 fs.mkdirSync(filesDir, { recursive: true });
 
@@ -18,7 +20,7 @@ const isImageFresh = () => {
   }
 
   const metadata = JSON.parse(fs.readFileSync(metadataPath, "utf8"));
-  return Date.now() - metadata.createdAt < TEN_MINUTES;
+  return Date.now() - metadata.createdAt < IMAGE_CACHE_TIME;
 };
 
 const cacheImage = async () => {
@@ -26,7 +28,7 @@ const cacheImage = async () => {
     return;
   }
 
-  const response = await fetch("https://picsum.photos/1200");
+  const response = await fetch(IMAGE_URL);
   const buffer = Buffer.from(await response.arrayBuffer());
 
   fs.writeFileSync(imagePath, buffer);

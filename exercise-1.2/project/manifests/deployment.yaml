@@ -23,9 +23,9 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 3000
-          env:
-            - name: MESSAGE
-              value: "Hello from Kubernetes"
+          envFrom:
+            - configMapRef:
+                name: project-config
           volumeMounts:
             - name: shared-data
               mountPath: /usr/src/app/files
