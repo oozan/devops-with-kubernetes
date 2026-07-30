@@ -1,27 +1,25 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   namespace: exercises
-  name: ping-pong
+  name: postgres
 spec:
+  serviceName: postgres
   replicas: 1
   selector:
     matchLabels:
-      app: ping-pong
+      app: postgres
   template:
     metadata:
       labels:
-        app: ping-pong
+        app: postgres
     spec:
       containers:
-        - name: ping-pong
-          image: ping-pong
-          imagePullPolicy: Never
+        - name: postgres
+          image: postgres:16-alpine
           ports:
-            - containerPort: 3000
+            - containerPort: 5432
           env:
-            - name: POSTGRES_HOST
-              value: postgres.exercises
             - name: POSTGRES_DB
               value: pingpong
             - name: POSTGRES_USER
@@ -31,3 +29,15 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: exercises
+  name: postgres
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
