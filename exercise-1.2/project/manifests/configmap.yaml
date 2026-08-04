@@ -9,3 +9,8 @@ data:
   MESSAGE: "Hello from Kubernetes"
   IMAGE_URL: "https://picsum.photos/1200"
   IMAGE_CACHE_MINUTES: "10"
+  POSTGRES_HOST: "todo-postgres"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "todos"
+  POSTGRES_USER: "postgres"
+  DB_RETRY_MS: "3000"
