@@ -2,13 +2,13 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 
-const PORT = process.env.PORT || 3000;
-const TODO_BACKEND_URL = process.env.TODO_BACKEND_URL || "http://todo-backend.project:3000";
+const PORT = Number(process.env.PORT);
+const TODO_BACKEND_URL = process.env.TODO_BACKEND_URL;
 const filesDir = "/usr/src/app/files";
 const imagePath = path.join(filesDir, "image.jpg");
 const metadataPath = path.join(filesDir, "image-metadata.json");
-const IMAGE_URL = process.env.IMAGE_URL || "https://picsum.photos/1200";
-const IMAGE_CACHE_MINUTES = Number(process.env.IMAGE_CACHE_MINUTES || "10");
+const IMAGE_URL = process.env.IMAGE_URL;
+const IMAGE_CACHE_MINUTES = Number(process.env.IMAGE_CACHE_MINUTES);
 const IMAGE_CACHE_TIME = IMAGE_CACHE_MINUTES * 60 * 1000;
 
 fs.mkdirSync(filesDir, { recursive: true });
@@ -67,7 +67,7 @@ const renderPage = async () => {
     <html>
       <body style="font-family: Arial; text-align: center;">
         <h1>Todo App</h1>
-        <p>${process.env.MESSAGE || "No message configured"}</p>
+        <p>${process.env.MESSAGE}</p>
         <img src="/image.jpg" alt="Random image" style="max-width: 500px;" />
 
         <form method="POST" action="/todos" style="margin-top: 20px;">

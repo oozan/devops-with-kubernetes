@@ -1,6 +1,6 @@
 const http = require("http");
 
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT);
 const MAX_TODO_LENGTH = 140;
 
 let todos = ["Learn Kubernetes", "Build a todo app"];

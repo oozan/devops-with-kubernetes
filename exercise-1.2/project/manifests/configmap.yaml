@@ -4,6 +4,8 @@ metadata:
   namespace: project
   name: project-config
 data:
+  PORT: "3000"
+  TODO_BACKEND_URL: "http://todo-backend:3000"
   MESSAGE: "Hello from Kubernetes"
   IMAGE_URL: "https://picsum.photos/1200"
   IMAGE_CACHE_MINUTES: "10"
