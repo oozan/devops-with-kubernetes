@@ -14,3 +14,4 @@ data:
   POSTGRES_DB: "todos"
   POSTGRES_USER: "postgres"
   DB_RETRY_MS: "3000"
+  WIKIPEDIA_RANDOM_URL: "https://en.wikipedia.org/wiki/Special:Random"
