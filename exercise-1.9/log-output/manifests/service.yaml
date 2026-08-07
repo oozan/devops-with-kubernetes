@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ping-pong
+  name: log-output
 spec:
   type: ClusterIP
   selector:
-    app: ping-pong
+    app: log-output
   ports:
     - port: 3000
       targetPort: 3000
