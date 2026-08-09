@@ -20,10 +20,10 @@ images:
   newTag: "3.10"
 - name: PROJECT/BROADCASTER_IMAGE
   newName: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/todo-broadcaster
-  newTag: 924d614fff2a8e84a8db245ffb98b9d52866222f
+  newTag: 7b239b4d8c51bb95f9e126b59130aacfc9705c86
 - name: PROJECT/PROJECT_IMAGE
   newName: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/project
-  newTag: 924d614fff2a8e84a8db245ffb98b9d52866222f
+  newTag: 7b239b4d8c51bb95f9e126b59130aacfc9705c86
 - name: PROJECT/TODO_BACKEND_IMAGE
   newName: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/todo-backend
-  newTag: 924d614fff2a8e84a8db245ffb98b9d52866222f
+  newTag: 7b239b4d8c51bb95f9e126b59130aacfc9705c86
