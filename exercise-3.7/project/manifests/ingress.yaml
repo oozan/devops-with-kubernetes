@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: project
+  name: project
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /project
+            pathType: Prefix
+            backend:
+              service:
+                name: project
+                port:
+                  number: 3000
+          - path: /image.jpg
+            pathType: Exact
+            backend:
+              service:
+                name: project
+                port:
+                  number: 3000
+          - path: /todos
+            pathType: Prefix
+            backend:
+              service:
+                name: project
+                port:
+                  number: 3000

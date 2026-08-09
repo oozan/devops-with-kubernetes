@@ -1,0 +1,82 @@
+name: Release exercise 3.7 branch environment
+
+on:
+  push:
+    branches:
+      - "**"
+    paths:
+      - "exercise-3.7/**"
+      - ".github/workflows/exercise-3.7.yaml"
+
+permissions:
+  contents: read
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_CLUSTER: dwk-cluster
+  GKE_ZONE: europe-north1-a
+  REGISTRY: europe-north1-docker.pkg.dev
+  REPOSITORY: dwk-repo
+  PROJECT_IMAGE: project
+  TODO_BACKEND_IMAGE: todo-backend
+
+jobs:
+  build-publish-deploy:
+    name: Build, Publish and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GKE_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Configure Docker
+        run: gcloud --quiet auth configure-docker "$REGISTRY"
+
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v3
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          project_id: ${{ env.PROJECT_ID }}
+          location: ${{ env.GKE_ZONE }}
+
+      - name: Set deployment variables
+        run: |
+          if [ "$GITHUB_REF_NAME" = "main" ]; then
+            NAMESPACE=project
+          else
+            NAMESPACE="$GITHUB_REF_NAME"
+          fi
+          echo "NAMESPACE=$NAMESPACE" >> "$GITHUB_ENV"
+          echo "PROJECT_IMAGE_URI=$REGISTRY/$PROJECT_ID/$REPOSITORY/$PROJECT_IMAGE:$GITHUB_REF_NAME-$GITHUB_SHA" >> "$GITHUB_ENV"
+          echo "TODO_BACKEND_IMAGE_URI=$REGISTRY/$PROJECT_ID/$REPOSITORY/$TODO_BACKEND_IMAGE:$GITHUB_REF_NAME-$GITHUB_SHA" >> "$GITHUB_ENV"
+
+      - name: Build and publish images
+        run: |
+          docker build --tag "$PROJECT_IMAGE_URI" exercise-3.7/project
+          docker push "$PROJECT_IMAGE_URI"
+          docker build --tag "$TODO_BACKEND_IMAGE_URI" exercise-3.7/project/todo-backend
+          docker push "$TODO_BACKEND_IMAGE_URI"
+
+      - name: Set up Kustomize
+        uses: imranismail/setup-kustomize@v3
+
+      - name: Deploy branch environment
+        working-directory: exercise-3.7/project
+        run: |
+          kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
+          kustomize edit set namespace "$NAMESPACE"
+          kustomize edit set image PROJECT/PROJECT_IMAGE="$PROJECT_IMAGE_URI"
+          kustomize edit set image PROJECT/TODO_BACKEND_IMAGE="$TODO_BACKEND_IMAGE_URI"
+          kustomize build . | kubectl apply -f -
+          kubectl rollout status statefulset/todo-postgres -n "$NAMESPACE" --timeout=5m
+          kubectl rollout status deployment/todo-backend -n "$NAMESPACE" --timeout=5m
+          kubectl rollout status deployment/project -n "$NAMESPACE" --timeout=5m
+          kubectl get ingress -n "$NAMESPACE"
