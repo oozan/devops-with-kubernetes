@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: exercises
+resources:
+  - manifests/configmap.yaml
+  - manifests/deployment.yaml
+  - manifests/service.yaml
+images:
+  - name: PROJECT/LOG_OUTPUT_IMAGE
+    newName: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/log-output
+    newTag: "4.1"

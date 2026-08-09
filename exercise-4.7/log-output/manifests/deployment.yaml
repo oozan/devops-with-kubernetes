@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: exercises
+  name: log-output
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-output
+  template:
+    metadata:
+      labels:
+        app: log-output
+    spec:
+      volumes:
+        - name: shared-files
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: log-output-config
+      containers:
+        - name: log-output-writer
+          image: PROJECT/LOG_OUTPUT_IMAGE
+          imagePullPolicy: Always
+          command: ["node", "writer.js"]
+          volumeMounts:
+            - name: shared-files
+              mountPath: /usr/src/app/files
+        - name: log-output-server
+          image: PROJECT/LOG_OUTPUT_IMAGE
+          imagePullPolicy: Always
+          command: ["node", "server.js"]
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          env:
+            - name: MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: log-output-config
+                  key: MESSAGE
+          volumeMounts:
+            - name: shared-files
+              mountPath: /usr/src/app/files
+            - name: config-volume
+              mountPath: /usr/src/app/config
+              readOnly: true
