@@ -1,0 +1,4 @@
+server:
+  replicaCount: 2
+  statefulSet:
+    enabled: true
