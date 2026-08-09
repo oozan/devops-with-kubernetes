@@ -21,10 +21,10 @@ patches:
 images:
 - name: PROJECT/BROADCASTER_IMAGE
   newName: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/todo-broadcaster
-  newTag: 8c07ca409766a6e391dae490e624fb44c6718fc8
+  newTag: a99ca7c477615817e508b56fbadd04f8d144da2b
 - name: PROJECT/PROJECT_IMAGE
   newName: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/project
-  newTag: 8c07ca409766a6e391dae490e624fb44c6718fc8
+  newTag: a99ca7c477615817e508b56fbadd04f8d144da2b
 - name: PROJECT/TODO_BACKEND_IMAGE
   newName: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/todo-backend
-  newTag: 8c07ca409766a6e391dae490e624fb44c6718fc8
+  newTag: a99ca7c477615817e508b56fbadd04f8d144da2b
