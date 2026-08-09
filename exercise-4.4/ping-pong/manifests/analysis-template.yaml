@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  namespace: exercises
+  name: ping-pong-cpu-usage
+spec:
+  args:
+    - name: cpu-threshold
+      value: "0.2"
+  metrics:
+    - name: namespace-cpu-usage
+      initialDelay: 30s
+      interval: 30s
+      count: 2
+      failureLimit: 1
+      successCondition: 'result[0] < {{ args.cpu-threshold }}'
+      provider:
+        prometheus:
+          address: http://prom-prometheus-server.prometheus.svc.cluster.local
+          query: |
+            sum(
+              rate(
+                container_cpu_usage_seconds_total{
+                  namespace="exercises",
+                  container!="",
+                  container!="POD"
+                }[5m]
+              )
+            )
