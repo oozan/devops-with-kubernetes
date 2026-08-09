@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: project
+  name: broadcaster
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: broadcaster
+  template:
+    metadata:
+      labels:
+        app: broadcaster
+    spec:
+      containers:
+        - name: broadcaster
+          image: PROJECT/BROADCASTER_IMAGE
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 96Mi
+          env:
+            - name: NATS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: project-config
+                  key: NATS_URL
+            - name: NATS_SUBJECT
+              valueFrom:
+                configMapKeyRef:
+                  name: project-config
+                  key: NATS_SUBJECT
+            - name: NATS_QUEUE
+              valueFrom:
+                configMapKeyRef:
+                  name: project-config
+                  key: NATS_QUEUE
+            - name: WEBHOOK_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: project-config
+                  key: WEBHOOK_URL
+            - name: BROADCAST_MODE
+              valueFrom:
+                configMapKeyRef:
+                  name: project-config
+                  key: BROADCAST_MODE

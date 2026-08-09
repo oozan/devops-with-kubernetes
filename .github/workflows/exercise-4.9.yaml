@@ -1,0 +1,92 @@
+name: GitOps release exercise 4.9 environments
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "*"
+    paths:
+      - "exercise-4.9/project/**"
+      - ".github/workflows/exercise-4.9.yaml"
+
+permissions:
+  contents: write
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  REGISTRY: europe-north1-docker.pkg.dev
+  REPOSITORY: dwk-repo
+
+jobs:
+  build-publish-release:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Select environment
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "DEPLOY_ENV=production" >> "$GITHUB_ENV"
+          else
+            echo "DEPLOY_ENV=staging" >> "$GITHUB_ENV"
+          fi
+
+      - name: Checkout triggering revision
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GKE_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Configure Docker
+        run: gcloud --quiet auth configure-docker "$REGISTRY"
+
+      - name: Build and publish project
+        run: |
+          IMAGE_URI="$REGISTRY/$PROJECT_ID/$REPOSITORY/project:$GITHUB_SHA"
+          docker build --tag "$IMAGE_URI" exercise-4.9/project
+          docker push "$IMAGE_URI"
+
+      - name: Build and publish todo-backend
+        run: |
+          IMAGE_URI="$REGISTRY/$PROJECT_ID/$REPOSITORY/todo-backend:$GITHUB_SHA"
+          docker build --tag "$IMAGE_URI" exercise-4.9/project/todo-backend
+          docker push "$IMAGE_URI"
+
+      - name: Build and publish broadcaster
+        run: |
+          IMAGE_URI="$REGISTRY/$PROJECT_ID/$REPOSITORY/todo-broadcaster:$GITHUB_SHA"
+          docker build --tag "$IMAGE_URI" exercise-4.9/project/broadcaster
+          docker push "$IMAGE_URI"
+
+      - name: Set up Kustomize
+        uses: imranismail/setup-kustomize@v3
+
+      - name: Check out main configuration for tagged release
+        if: env.DEPLOY_ENV == 'production'
+        run: |
+          git fetch origin main
+          git checkout main
+          git pull --ff-only origin main
+
+      - name: Update selected environment
+        run: |
+          cd "exercise-4.9/project/overlays/$DEPLOY_ENV"
+          kustomize edit set image PROJECT/PROJECT_IMAGE="$REGISTRY/$PROJECT_ID/$REPOSITORY/project:$GITHUB_SHA"
+          kustomize edit set image PROJECT/TODO_BACKEND_IMAGE="$REGISTRY/$PROJECT_ID/$REPOSITORY/todo-backend:$GITHUB_SHA"
+          kustomize edit set image PROJECT/BROADCASTER_IMAGE="$REGISTRY/$PROJECT_ID/$REPOSITORY/todo-broadcaster:$GITHUB_SHA"
+
+      - name: Commit selected environment
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "exercise-4.9/project/overlays/$DEPLOY_ENV/kustomization.yaml"
+          git commit -m "Release exercise 4.9 $DEPLOY_ENV $GITHUB_SHA"
+          git push origin HEAD:main
