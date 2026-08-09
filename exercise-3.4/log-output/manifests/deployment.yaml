@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: exercises
+  name: log-output
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-output
+  template:
+    metadata:
+      labels:
+        app: log-output
+    spec:
+      volumes:
+        - name: shared-files
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: log-output-config
+      containers:
+        - name: log-output-writer
+          image: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/log-output:3.2
+          imagePullPolicy: Always
+          command: ["node", "writer.js"]
+          volumeMounts:
+            - name: shared-files
+              mountPath: /usr/src/app/files
+        - name: log-output-server
+          image: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/log-output:3.2
+          imagePullPolicy: Always
+          command: ["node", "server.js"]
+          ports:
+            - containerPort: 3000
+          env:
+            - name: MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: log-output-config
+                  key: MESSAGE
+          volumeMounts:
+            - name: shared-files
+              mountPath: /usr/src/app/files
+            - name: config-volume
+              mountPath: /usr/src/app/config
+              readOnly: true
