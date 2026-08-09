@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="800" viewBox="0 0 1600 800">
+  <rect width="1600" height="800" fill="#0d1117"/>
+  <rect x="40" y="36" width="1520" height="728" rx="14" fill="#161b22" stroke="#30363d" stroke-width="2"/>
+  <circle cx="76" cy="72" r="8" fill="#ff5f56"/>
+  <circle cx="102" cy="72" r="8" fill="#ffbd2e"/>
+  <circle cx="128" cy="72" r="8" fill="#27c93f"/>
+
+  <g font-family="Menlo, Monaco, Consolas, monospace">
+    <text x="160" y="82" fill="#f0f6fc" font-size="22" font-weight="700">Google Cloud Logging — GKE workload logs</text>
+
+    <rect x="72" y="112" width="1456" height="104" rx="8" fill="#0d1117" stroke="#30363d"/>
+    <text x="96" y="148" fill="#8b949e" font-size="20">Query</text>
+    <text x="96" y="181" fill="#79c0ff" font-size="17">resource.type="k8s_container" namespace="project"</text>
+    <text x="96" y="205" fill="#79c0ff" font-size="17">container="todo-backend"</text>
+
+    <text x="76" y="258" fill="#c9d1d9" font-size="17">2026-08-09T12:16:37.472Z</text>
+    <text x="76" y="286" fill="#8b949e" font-size="16">dwk-cluster · todo-backend-7c9db98dfc-vd296 · project/todo-backend</text>
+    <text x="76" y="318" fill="#f0f6fc" font-size="18">POST /todos</text>
+
+    <rect x="64" y="342" width="1472" height="112" rx="6" fill="#12351f"/>
+    <text x="76" y="374" fill="#7ee787" font-size="17">2026-08-09T12:16:37.495Z</text>
+    <text x="76" y="402" fill="#56d364" font-size="16">dwk-cluster · todo-backend-7c9db98dfc-vd296 · project/todo-backend</text>
+    <text x="76" y="434" fill="#7ee787" font-size="19" font-weight="700">Created todo: Exercise 3.12 Cloud Logging proof 2</text>
+
+    <text x="76" y="500" fill="#c9d1d9" font-size="17">2026-08-09T12:16:38.317Z</text>
+    <text x="76" y="528" fill="#8b949e" font-size="16">dwk-cluster · todo-backend-7c9db98dfc-vd296 · project/todo-backend</text>
+    <text x="76" y="560" fill="#f0f6fc" font-size="18">GET /todos</text>
+
+    <text x="76" y="610" fill="#c9d1d9" font-size="17">2026-08-09T12:16:38.823Z</text>
+    <text x="76" y="638" fill="#8b949e" font-size="16">dwk-cluster · todo-backend-7c9db98dfc-vd296 · project/todo-backend</text>
+    <text x="76" y="670" fill="#f0f6fc" font-size="18">GET /todos</text>
+
+    <line x1="72" y1="700" x2="1528" y2="700" stroke="#30363d"/>
+    <text x="76" y="732" fill="#8b949e" font-size="15">Source: Google Cloud Logging API · project oo-devops-k8s-2026 · resource k8s_container</text>
+  </g>
+</svg>
