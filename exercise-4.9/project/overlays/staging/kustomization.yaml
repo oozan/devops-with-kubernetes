@@ -2,29 +2,29 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: project-staging
 resources:
-  - ../../base
-  - namespace.yaml
+- ../../base
+- namespace.yaml
 patches:
-  - target:
-      kind: ConfigMap
-      name: project-config
-    patch: |-
-      - op: replace
-        path: /data/NATS_SUBJECT
-        value: todos.events.staging
-      - op: replace
-        path: /data/NATS_QUEUE
-        value: todo-broadcasters-staging
-      - op: add
-        path: /data/BROADCAST_MODE
-        value: log
+- patch: |-
+    - op: replace
+      path: /data/NATS_SUBJECT
+      value: todos.events.staging
+    - op: replace
+      path: /data/NATS_QUEUE
+      value: todo-broadcasters-staging
+    - op: add
+      path: /data/BROADCAST_MODE
+      value: log
+  target:
+    kind: ConfigMap
+    name: project-config
 images:
-  - name: PROJECT/PROJECT_IMAGE
-    newName: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/project
-    newTag: 95397142e685701c56d42f010028508731d2e1d3
-  - name: PROJECT/TODO_BACKEND_IMAGE
-    newName: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/todo-backend
-    newTag: 95397142e685701c56d42f010028508731d2e1d3
-  - name: PROJECT/BROADCASTER_IMAGE
-    newName: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/todo-broadcaster
-    newTag: 95397142e685701c56d42f010028508731d2e1d3
+- name: PROJECT/BROADCASTER_IMAGE
+  newName: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/todo-broadcaster
+  newTag: 8c07ca409766a6e391dae490e624fb44c6718fc8
+- name: PROJECT/PROJECT_IMAGE
+  newName: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/project
+  newTag: 8c07ca409766a6e391dae490e624fb44c6718fc8
+- name: PROJECT/TODO_BACKEND_IMAGE
+  newName: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/todo-backend
+  newTag: 8c07ca409766a6e391dae490e624fb44c6718fc8
