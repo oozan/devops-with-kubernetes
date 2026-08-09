@@ -5,7 +5,7 @@ on:
     branches:
       - main
     tags:
-      - "*"
+      - "4.9"
     paths:
       - "exercise-4.9/project/**"
       - ".github/workflows/exercise-4.9.yaml"
