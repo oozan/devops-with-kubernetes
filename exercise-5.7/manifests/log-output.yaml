@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-output
+  namespace: exercises
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-output
+  template:
+    metadata:
+      labels:
+        app: log-output
+    spec:
+      securityContext:
+        fsGroup: 1000
+      volumes:
+        - name: shared-files
+          emptyDir: {}
+      containers:
+        - name: writer
+          image: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/log-output:5.7
+          imagePullPolicy: IfNotPresent
+          command: ["node", "writer.js"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: shared-files
+              mountPath: /usr/src/app/files
+        - name: server
+          image: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/log-output:5.7
+          imagePullPolicy: IfNotPresent
+          command: ["node", "server.js"]
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: PING_PONG_HOST
+              value: pingpong.exercises.svc.cluster.local
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: shared-files
+              mountPath: /usr/src/app/files
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: log-output
+  namespace: exercises
+spec:
+  type: NodePort
+  selector:
+    app: log-output
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      nodePort: 30080
