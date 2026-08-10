@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greeter-v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: greeter
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: greeter
+        version: v1
+    spec:
+      containers:
+        - name: greeter
+          image: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/greeter:5.3-amd64
+          env:
+            - name: GREETING
+              value: Hello from greeter v1
+          ports:
+            - name: http
+              containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: greeter-svc-1
+spec:
+  selector:
+    app: greeter
+    version: v1
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greeter-v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: greeter
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: greeter
+        version: v2
+    spec:
+      containers:
+        - name: greeter
+          image: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/greeter:5.3-amd64
+          env:
+            - name: GREETING
+              value: Hello from greeter v2
+          ports:
+            - name: http
+              containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: greeter-svc-2
+spec:
+  selector:
+    app: greeter
+    version: v2
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: greeter-svc
+spec:
+  selector:
+    app: greeter
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http

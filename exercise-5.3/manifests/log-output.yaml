@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-output
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-output
+  template:
+    metadata:
+      labels:
+        app: log-output
+    spec:
+      volumes:
+        - name: shared-files
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: log-output-config
+      containers:
+        - name: log-output-writer
+          image: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/log-output:5.3-amd64
+          command: [node, writer.js]
+          volumeMounts:
+            - name: shared-files
+              mountPath: /usr/src/app/files
+        - name: log-output-server
+          image: europe-north1-docker.pkg.dev/oo-devops-k8s-2026/dwk-repo/log-output:5.3-amd64
+          command: [node, server.js]
+          ports:
+            - name: http
+              containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          env:
+            - name: MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: log-output-config
+                  key: MESSAGE
+            - name: GREETER_URL
+              value: http://greeter-svc:3000/greeting
+          volumeMounts:
+            - name: shared-files
+              mountPath: /usr/src/app/files
+            - name: config-volume
+              mountPath: /usr/src/app/config
+              readOnly: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: log-output
+spec:
+  selector:
+    app: log-output
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
