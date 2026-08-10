@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wikipedia
+  namespace: exercises
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wikipedia
+  template:
+    metadata:
+      labels:
+        app: wikipedia
+    spec:
+      initContainers:
+        - name: fetch-kubernetes-page
+          image: curlimages/curl:8.10.1
+          command: [sh, -c]
+          args:
+            - >-
+              curl --location --fail --silent --show-error
+              --retry 3
+              --user-agent 'dwk-course-exercise/5.4 (educational)'
+              https://en.wikipedia.org/wiki/Kubernetes
+              --output /work/index.html
+          volumeMounts:
+            - name: wikipedia-pages
+              mountPath: /work
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports:
+            - name: http
+              containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          volumeMounts:
+            - name: wikipedia-pages
+              mountPath: /usr/share/nginx/html
+              readOnly: true
+        - name: wikipedia-updater
+          image: curlimages/curl:8.10.1
+          command: [sh, -c]
+          args:
+            - |
+              set -eu
+              while true; do
+                random_number=$(od -An -N2 -tu2 /dev/urandom)
+                wait_seconds=$((MIN_WAIT_SECONDS + random_number % (MAX_WAIT_SECONDS - MIN_WAIT_SECONDS + 1)))
+                echo "Waiting ${wait_seconds} seconds before fetching a random Wikipedia page"
+                sleep "${wait_seconds}"
+                curl --location --fail --silent --show-error \
+                  --retry 3 \
+                  --user-agent 'dwk-course-exercise/5.4 (educational)' \
+                  https://en.wikipedia.org/wiki/Special:Random \
+                  --output /work/index.html.tmp
+                mv /work/index.html.tmp /work/index.html
+                echo "Wikipedia page updated"
+              done
+          env:
+            - name: MIN_WAIT_SECONDS
+              value: '300'
+            - name: MAX_WAIT_SECONDS
+              value: '900'
+          resources:
+            requests:
+              cpu: 5m
+              memory: 8Mi
+            limits:
+              cpu: 50m
+              memory: 32Mi
+          volumeMounts:
+            - name: wikipedia-pages
+              mountPath: /work
+      volumes:
+        - name: wikipedia-pages
+          emptyDir: {}
