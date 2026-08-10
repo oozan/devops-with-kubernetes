@@ -1,0 +1,31 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: hello
+  namespace: default
+spec:
+  template:
+    metadata:
+      name: hello-v1
+    spec:
+      containers:
+        - name: user-container
+          image: ghcr.io/knative/helloworld-go:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            tcpSocket:
+              port: 0
+            successThreshold: 1
+          env:
+            - name: TARGET
+              value: World
